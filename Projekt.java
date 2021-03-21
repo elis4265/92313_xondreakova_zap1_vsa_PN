@@ -27,35 +27,42 @@ public class Projekt {
             p.setName(name);
             p.setPrice(price);
         } else {
-            if (p.getName() != null && name != null) {
+            if (p.getName() != null && name != null && !name.equals(p.getName())) { //UT20-21
                 return false;
             }
-            p.setName(name);
+            if (name != null && p.getName() == null) { //UT31
+                p.setName(name);
+
+            }
             if (price != null) {
                 p.setPrice(price);
+
             }
         }
-        persist(p);
+        persist(em, p);
         return true;
     }
 
     public void priceListUpdate(Map<String, Double> priceList) {
+        if (priceList == null) {  //UT81 
+            return;
+        }
         for (Map.Entry<String, Double> entry : priceList.entrySet()) {
             publicationUpdate(entry.getKey(), entry.getValue(), null);
         }
     }
 
-    public static void persist(Object object) {
-        EntityManagerFactory emf = Persistence.createEntityManagerFactory("projektPU");
-        EntityManager em = emf.createEntityManager();
+    public static void persist(EntityManager em, Object object) {
         em.getTransaction().begin();
         try {
             em.persist(object);
             em.getTransaction().commit();
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             e.printStackTrace();
             em.getTransaction().rollback();
-        } finally {
+        }
+        finally {
             em.close();
         }
     }
